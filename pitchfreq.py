@@ -29,6 +29,26 @@ def a4diff(base, octave, nflat, nsharp):
     return n
 
 
+def nfreq(n, tuning):
+    a = math.pow(2, 1/12.)
+    f = tuning * (a**n)
+
+    return f
+
+
+def nnote(n):
+    octave = 0
+
+    while abs(n) > 11 or n < 0:
+        octaves += math.copysign(1, n)
+        n += math.copysign(12, n)
+
+    base = ('a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#')[n]
+    octave += 4
+
+    return base.upper() + str(octave)
+
+
 parser = argparse.ArgumentParser(description='Convert various pitch and frequency representations using equal temperament.')
 parser.add_argument(dest='string', type=str, help='Input, by default either frequency or scientific pitch notation is assumed.')
 parser.add_argument('-m', dest='helmholtz', action='store_true', default=False, help='Pitch is in Helmholtz notation / musical notation.')
@@ -62,8 +82,44 @@ except ValueError:
 
 
 if freq:
-    exit("freq NOT IMPLEMENTED")
-    # TODO
+    if helmholtz:
+        exit("found frequency, but -m is set.")
+
+    n = 12 * math.log((f / tuning), 2)
+
+    nu = math.ceil(n)
+    nl = math.floor(n)
+
+    fu = nfreq(nu, tuning)
+    fl = nfreq(nl, tuning)
+
+
+    print "Nearby notes:"
+
+    thres = .2
+
+    if nu == round(n):
+        if fu != fl:
+            delta_ratio = (fu - f) / (fu - fl)
+        else:
+            delta_ratio = 0
+
+        print nnote(int(nu)) + " (frequency: {0:.3f}".format(fu)
+
+        if delta_ratio > thres or showall:
+            print nnote(int(nl)) + " (frequency: {0:.3f}".format(fl)
+    else:
+        if f != fl:
+            delta_ratio = (f - fl) / (fu - fl)
+        else:
+            delta_ratio = 0
+
+        print nnote(int(nl)) + " (frequency: {0:.3f}".format(fl)
+
+        if delta_ratio > thres or showall:
+            print nnote(int(nu)) + " (frequency: {0:.3f}".format(fu)
+    
+
 
 else:
     if not helmholtz:
@@ -201,7 +257,6 @@ else:
         base = l.lower()
 
     n = a4diff(base, octave, nflat, nsharp)
-    a = math.pow(2, 1/12.)
-    f = tuning * (a**n)
+    f = nfreq(n, tuning)
 
     print "Frequency: {0:.3f}".format(f)
