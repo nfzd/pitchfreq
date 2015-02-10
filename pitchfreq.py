@@ -36,22 +36,46 @@ def nfreq(n, tuning):
     return f
 
 
-def nnote(n):
+def nnote(n, helmholtz):
+    return nnote_helmholtz(n) if helmholtz else nnote_scientific(n)
+
+
+def nnote_scientific(n):
+    base, octave = nnote_base(n)
+
+    return base + str(octave)
+
+
+def nnote_helmholtz(n):
+    base, octave = nnote_base(n)
+
+    if octave > 2:
+        base = base.lower()
+        octnot = "'" * (octave - 3)
+    else:
+        octnot = "," * (2 - octave)
+    
+    return base + octnot
+
+
+def nnote_base(n):
     octave = 0
 
     while abs(n) > 11 or n < 0:
-        octaves += math.copysign(1, n)
-        n += math.copysign(12, n)
+        octave += math.copysign(1, n)
+        n -= math.copysign(12, n)
 
-    base = ('a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#')[n]
+    base = ('a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#')[int(n)]
     octave += 4
+    if n > 2:
+        octave += 1
 
-    return base.upper() + str(octave)
+    return base.upper(), int(octave)
 
 
 parser = argparse.ArgumentParser(description='Convert various pitch and frequency representations using equal temperament.')
 parser.add_argument(dest='string', type=str, help='Input, by default either frequency or scientific pitch notation is assumed.')
-parser.add_argument('-m', dest='helmholtz', action='store_true', default=False, help='Pitch is in Helmholtz notation / musical notation.')
+parser.add_argument('-m', dest='helmholtz', action='store_true', default=False, help='Input or output uses Helmholtz notation / musical notation.')
 parser.add_argument('-a', dest='showall', action='store_true', default=False, help='Show all notations.')
 parser.add_argument('-t', dest='tuning', action='store', default=440, help='Tuning of A4 (default: 440)')
 #parser.add_argument('-c', dest='speedofsound', action='store', default=434, help='Speed of sound (default: 434)')
@@ -82,8 +106,6 @@ except ValueError:
 
 
 if freq:
-    if helmholtz:
-        exit("found frequency, but -m is set.")
 
     n = 12 * math.log((f / tuning), 2)
 
@@ -104,20 +126,20 @@ if freq:
         else:
             delta_ratio = 0
 
-        print nnote(int(nu)) + " (frequency: {0:.3f}".format(fu)
+        print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
 
         if delta_ratio > thres or showall:
-            print nnote(int(nl)) + " (frequency: {0:.3f}".format(fl)
+            print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
     else:
         if f != fl:
             delta_ratio = (f - fl) / (fu - fl)
         else:
             delta_ratio = 0
 
-        print nnote(int(nl)) + " (frequency: {0:.3f}".format(fl)
+        print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
 
         if delta_ratio > thres or showall:
-            print nnote(int(nu)) + " (frequency: {0:.3f}".format(fu)
+            print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
     
 
 
