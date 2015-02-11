@@ -73,7 +73,7 @@ def nnote_base(n):
     return base.upper(), int(octave)
 
 
-parser = argparse.ArgumentParser(description='Convert various pitch and frequency representations using equal temperament.')
+parser = argparse.ArgumentParser(description='Convert various pitch and frequency notations using equal temperament.')
 parser.add_argument(dest='string', type=str, help='Input, by default either frequency or scientific pitch notation is assumed.')
 parser.add_argument('-m', dest='helmholtz', action='store_true', default=False, help='Input or output uses Helmholtz notation / musical notation.')
 parser.add_argument('-a', dest='showall', action='store_true', default=False, help='Show all notations.')

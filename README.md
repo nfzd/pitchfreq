@@ -24,3 +24,22 @@ pitchfreq.py [-h] [-m] [-a] [-t TUNING] string
 - -t TUNING: tuning frequency for A4 if not 440 Hz
 - -a: show all possible information (wavelength etc.), __IN DEVELOPMENT__
 
+Examples
+===
+```
+$ ./pitchfreq.py 430
+Nearby notes:
+A4 (frequency: 440.000)
+G#4 (frequency: 415.305)
+
+$ ./pitchfreq.py -m 510
+Nearby notes:
+c'' (frequency: 523.251)
+b' (frequency: 493.883)
+
+$ ./pitchfreq.py Cb0
+Frequency: 15.434
+
+$ ./pitchfreq.py -m "c##''"
+Frequency: 587.330
+```
