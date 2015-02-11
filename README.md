@@ -1,4 +1,26 @@
-# pitchfreq
-Convert various pitch and frequency representations.
+pitchfreq
+===
 
-This program is pre-alpha.
+Convert various pitch and frequency notations.
+
+Currently in alpha stage.
+
+Pitch Notations
+===
+
+- Scientific pitch notation: octaves are numbered from zero to ten, giving notes C0 to B10 (or c0 to b10). Tuning note is A4 (usually aroung 440 Hz).
+- Helmholtz / musical notation: This notation is case-sensitive. Scientific octave 3 ist the small octave, named c to b. Higher octaves are numbered according to distance (e.g. octave 4 is c1 to b1, etc.). Octave 2 is the great octave, named C to B. Lower octaves are similarly numbered according to distance (e.g. C1 to B1). Usually, ticks and commas are used: c2 = c'' and C2 = C,,
+
+Usage
+===
+
+```
+pitchfreq.py [-h] [-m] [-a] [-t TUNING] string
+```
+
+- string: input. A number will be regarded as frequency and converted to a note. An alphanumerical string will be regarded as pitch notation and converted to a frequency.
+- -h: display help message
+- -m: use helmholtz / musical notation for input / output
+- -t TUNING: tuning frequency for A4 if not 440 Hz
+- -a: show all possible information (wavelength etc.), __IN DEVELOPMENT__
+
