@@ -214,7 +214,7 @@ if __name__ == '__main__':
             l, cl = re.subn("[1-9,']+", '', s)
             n, cn = re.subn('[a-gA-G#]+', '', s)
 
-            if cl < 1 or cn != 1:
+            if cn != 1:
                 _exit("Bad format for helmholtz notation: can't find note " \
                         "and octave.")
 
@@ -227,22 +227,24 @@ if __name__ == '__main__':
             n = re.sub("[',]*", '', n)
 
             if nticks > 0 and ncommas > 0:
-                _exit("Bad format for scientic pitch notation: mixing ticks " \
+                _exit("Bad format for helmholtz notation: mixing ticks " \
                         "and commas.")
 
             if (nticks > 0 or ncommas > 0) and n != "":
-                _exit("Bad format for scientic pitch notation: mixing ticks " \
+                _exit("Bad format for helmholtz notation: mixing ticks " \
                         "or commas with numbers.")
 
-            if nticks == 0 and ncommas == 0 and n != "":
+            if nticks == 0 and ncommas == 0:
                 o = 0
 
                 if n != "":
-                    try:
-                        o = int(n)
-                    except ValueError:
-                        _exit("Bad format for helmholtz notation: can't " \
-                                "parse octave number.")
+
+                    if n != "":
+                        try:
+                            o = int(n)
+                        except ValueError:
+                            _exit("Bad format for helmholtz notation: can't " \
+                                    "parse octave number.")
 
 
             # process note
@@ -282,7 +284,7 @@ if __name__ == '__main__':
 
                 if nticks > 0:
                     _exit("Bad format for helmholtz notation: mixing " \
-                            "upper-case note and ticks.")
+                            "lower-case note and ticks.")
 
                 if ncommas > 0:
                     octave -= ncommas
