@@ -7,7 +7,7 @@ import re
 import sys
 
 
-def exit(error_msg):
+def _exit(error_msg):
     sys.exit(os.path.basename(__file__) + ": Error: " + error_msg)
 
 def a4diff(base, octave, nflat, nsharp):
@@ -30,6 +30,8 @@ def a4diff(base, octave, nflat, nsharp):
 
 
 def nfreq(n, tuning):
+    """Give frequency for note with n half-tones difference to A4."""
+
     a = math.pow(2, 1/12.)
     f = tuning * (a**n)
 
@@ -37,248 +39,259 @@ def nfreq(n, tuning):
 
 
 def nnote(n, helmholtz):
-    return nnote_helmholtz(n) if helmholtz else nnote_scientific(n)
+    """Give the name of the note with n half-tones difference to A4."""
 
-
-def nnote_scientific(n):
-    base, octave = nnote_base(n)
-
-    return base + str(octave)
-
-
-def nnote_helmholtz(n):
-    base, octave = nnote_base(n)
-
-    if octave > 2:
-        base = base.lower()
-        octnot = "'" * (octave - 3)
-    else:
-        octnot = "," * (2 - octave)
-    
-    return base + octnot
-
-
-def nnote_base(n):
     octave = 0
 
     while abs(n) > 11 or n < 0:
         octave += math.copysign(1, n)
         n -= math.copysign(12, n)
 
-    base = ('a', 'a#', 'b', 'c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#')[int(n)]
+    base = ('a', 'a#', 'b', 'c', 'c#', 'd',
+            'd#','e', 'f', 'f#', 'g', 'g#')[int(n)].upper()
     octave += 4
     if n > 2:
         octave += 1
 
-    return base.upper(), int(octave)
+    if not helmholtz:
+        return base + str(octave)
+    else:
+        octave = int(octave)
+
+        if octave > 2:
+            base = base.lower()
+            octnot = "'" * (octave - 3)
+        else:
+            octnot = "," * (2 - octave)
+        
+        return base + octnot
 
 
-parser = argparse.ArgumentParser(description='Convert various pitch and frequency notations using equal temperament.')
-parser.add_argument(dest='string', type=str, help='Input, by default either frequency or scientific pitch notation is assumed.')
-parser.add_argument('-m', dest='helmholtz', action='store_true', default=False, help='Input or output uses Helmholtz notation / musical notation.')
-parser.add_argument('-a', dest='showall', action='store_true', default=False, help='Show all notations.')
-parser.add_argument('-t', dest='tuning', action='store', default=440, help='Tuning of A4 (default: 440)')
-#parser.add_argument('-c', dest='speedofsound', action='store', default=434, help='Speed of sound (default: 434)')
+if __name__ == '__main__':
 
-args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Convert various pitch and ' \
+                'frequency notations using equal temperament.')
+    parser.add_argument(dest='string', type=str,help='Input, by default ' \
+                'either frequency or scientific pitch notation is assumed.')
+    parser.add_argument('-m', dest='helmholtz', action='store_true',
+                default=False, help='Input or output uses Helmholtz ' \
+                'notation / musical notation.')
+    parser.add_argument('-a', dest='showall', action='store_true',
+                default=False, help='Show all notations.')
+    parser.add_argument('-t', dest='tuning', action='store', default=440,
+                help='Tuning of A4 (default: 440)')
+    #parser.add_argument('-c', dest='speedofsound', action='store', default=434, help='Speed of sound (default: 434)')
 
-s = args.string
-helmholtz = args.helmholtz
-showall = args.showall
-tuning = args.tuning
-#c = args.speedofsound
+    args = parser.parse_args()
 
-if showall:
-    exit("-a NOT IMPLEMENTED")
-    # TODO
+    s = args.string
+    helmholtz = args.helmholtz
+    showall = args.showall
+    tuning = args.tuning
+    #c = args.speedofsound
+
+    if showall:
+        _exit("-a NOT IMPLEMENTED")
+        # TODO
 
 
-freq = True
+    freq = True
 
-try:
-    f = float(s)
+    try:
+        f = float(s)
 
-    if math.isnan(f) or math.isinf(f) or f == 0.0:
+        if math.isnan(f) or math.isinf(f) or f == 0.0:
+            freq = False
+
+    except ValueError:
         freq = False
 
-except ValueError:
-    freq = False
+
+    if freq:
+
+        n = 12 * math.log((f / tuning), 2)
+
+        nu = math.ceil(n)
+        nl = math.floor(n)
+
+        fu = nfreq(nu, tuning)
+        fl = nfreq(nl, tuning)
 
 
-if freq:
+        print "Nearby notes:"
 
-    n = 12 * math.log((f / tuning), 2)
+        thres = .2
 
-    nu = math.ceil(n)
-    nl = math.floor(n)
+        if nu == round(n):
+            if fu != fl:
+                delta_ratio = (fu - f) / (fu - fl)
+            else:
+                delta_ratio = 0
 
-    fu = nfreq(nu, tuning)
-    fl = nfreq(nl, tuning)
-
-
-    print "Nearby notes:"
-
-    thres = .2
-
-    if nu == round(n):
-        if fu != fl:
-            delta_ratio = (fu - f) / (fu - fl)
-        else:
-            delta_ratio = 0
-
-        print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
-
-        if delta_ratio > thres or showall:
-            print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
-    else:
-        if f != fl:
-            delta_ratio = (f - fl) / (fu - fl)
-        else:
-            delta_ratio = 0
-
-        print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
-
-        if delta_ratio > thres or showall:
             print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
-    
 
+            if delta_ratio > thres or showall:
+                print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
+        else:
+            if f != fl:
+                delta_ratio = (f - fl) / (fu - fl)
+            else:
+                delta_ratio = 0
 
-else:
-    if not helmholtz:
+            print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
 
-        # check for bad chars
+            if delta_ratio > thres or showall:
+                print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
+        
 
-        if re.search('[^0-9a-gA-G#]', s):
-            exit("Bad character in scientic pitch notation.")
-
-
-        # split number and other chars
-
-        l, cl = re.subn('[0-9]+', '', s)
-        n, cn = re.subn('[a-gA-G#]+', '', s)
-
-        if cl < 1 or cn != 1:
-            exit("Bad format for scientic pitch notation: can't find note and octave.")
-
-
-        # process number
-
-        try:
-            o = int(n)
-        except ValueError:
-            exit("Bad format for scientic pitch notation: can't parse octave number.")
-
-
-        # process note
-
-        l = l.lower()
-
-        nflat = l.count('b')
-        nsharp = l.count('#')
-
-        l = re.sub('[b#]', '', l)
-
-        if l == "":
-            # removed one b too much, b is base note
-            if nflat < 1:
-                exit("Bad format for scientic pitch notation: no note found.")
-
-            nflat -= 1
-            l = 'b'
-
-        if nflat > 2 or nsharp > 2:
-            exit("Bad format for scientic pitch notation: too many # or b.")
-
-        if nflat > 0 and nsharp > 0:
-            exit("Bad format for scientic pitch notation: mixing # and b.")
-
-        base = l
-        octave = o
 
     else:
-        # check for bad chars
+        if not helmholtz:
 
-        if re.search("[^1-9a-gA-G#,']", s):
-            exit("Bad character in helmholtz notation.")
+            # check for bad chars
 
-
-        # split number and other chars
-
-        l, cl = re.subn("[1-9,']+", '', s)
-        n, cn = re.subn('[a-gA-G#]+', '', s)
-
-        if cl < 1 or cn != 1:
-            exit("Bad format for helmholtz notation: can't find note and octave.")
+            if re.search('[^0-9a-gA-G#]', s):
+                _exit("Bad character in scientic pitch notation.")
 
 
-        # process numbering
+            # split number and other chars
 
-        nticks = n.count("'")
-        ncommas = n.count(",")
+            l, cl = re.subn('[0-9]+', '', s)
+            n, cn = re.subn('[a-gA-G#]+', '', s)
 
-        n = re.sub("[',]*", '', n)
-
-        if nticks > 0 and ncommas > 0:
-            exit("Bad format for scientic pitch notation: mixing ticks and commas.")
-
-        if (nticks > 0 or ncommas > 0) and n != "":
-            exit("Bad format for scientic pitch notation: mixing ticks or commas with numbers.")
-
-        if nticks == 0 and ncommas == 0 and n != "":
-            o = 0
-
-            if n != "":
-                try:
-                    o = int(n)
-                except ValueError:
-                    exit("Bad format for helmholtz notation: can't parse octave number.")
+            if cl < 1 or cn != 1:
+                _exit("Bad format for scientic pitch notation: can't find " \
+                        "note and octave.")
 
 
-        # process note
+            # process number
 
-        nflat = l.count('b')
-        nsharp = l.count('#')
+            try:
+                o = int(n)
+            except ValueError:
+                _exit("Bad format for scientic pitch notation: can't parse " \
+                        "octave number.")
 
-        l = re.sub('[b#]', '', l)
 
-        if l == "":
-            # removed one b too much, b is base note
-            if nflat < 1:
-                exit("Bad format for helmholtz notation: no note found.")
+            # process note
 
-            nflat -= 1
-            l = 'b'
+            l = l.lower()
 
-        if nflat > 2 or nsharp > 2:
-            exit("Bad format for helmholtz notation: too many # or b.")
+            nflat = l.count('b')
+            nsharp = l.count('#')
 
-        if nflat > 0 and nsharp > 0:
-            exit("Bad format for helmholtz notation: mixing # and b.")
+            l = re.sub('[b#]', '', l)
 
-        if l.islower():
-            octave = 3
+            if l == "":
+                # removed one b too much, b is base note
+                if nflat < 1:
+                    _exit("Bad format for scientic pitch notation: no note " \
+                            "found.")
 
-            if ncommas > 0:
-                exit("Bad format for helmholtz notation: mixing upper-case note and commas.")
+                nflat -= 1
+                l = 'b'
 
-            if nticks > 0:
-                octave += nticks
-            else:
-                octave += o
+            if nflat > 2 or nsharp > 2:
+                _exit("Bad format for scientic pitch notation: too many # " \
+                        "or b.")
+
+            if nflat > 0 and nsharp > 0:
+                _exit("Bad format for scientic pitch notation: mixing # and " \
+                        "b.")
+
+            base = l
+            octave = o
+
         else:
-            octave = 2
+            # check for bad chars
 
-            if nticks > 0:
-                exit("Bad format for helmholtz notation: mixing upper-case note and ticks.")
+            if re.search("[^1-9a-gA-G#,']", s):
+                _exit("Bad character in helmholtz notation.")
 
-            if ncommas > 0:
-                octave -= ncommas
+
+            # split number and other chars
+
+            l, cl = re.subn("[1-9,']+", '', s)
+            n, cn = re.subn('[a-gA-G#]+', '', s)
+
+            if cl < 1 or cn != 1:
+                _exit("Bad format for helmholtz notation: can't find note " \
+                        "and octave.")
+
+
+            # process numbering
+
+            nticks = n.count("'")
+            ncommas = n.count(",")
+
+            n = re.sub("[',]*", '', n)
+
+            if nticks > 0 and ncommas > 0:
+                _exit("Bad format for scientic pitch notation: mixing ticks " \
+                        "and commas.")
+
+            if (nticks > 0 or ncommas > 0) and n != "":
+                _exit("Bad format for scientic pitch notation: mixing ticks " \
+                        "or commas with numbers.")
+
+            if nticks == 0 and ncommas == 0 and n != "":
+                o = 0
+
+                if n != "":
+                    try:
+                        o = int(n)
+                    except ValueError:
+                        _exit("Bad format for helmholtz notation: can't " \
+                                "parse octave number.")
+
+
+            # process note
+
+            nflat = l.count('b')
+            nsharp = l.count('#')
+
+            l = re.sub('[b#]', '', l)
+
+            if l == "":
+                # removed one b too much, b is base note
+                if nflat < 1:
+                    _exit("Bad format for helmholtz notation: no note found.")
+
+                nflat -= 1
+                l = 'b'
+
+            if nflat > 2 or nsharp > 2:
+                _exit("Bad format for helmholtz notation: too many # or b.")
+
+            if nflat > 0 and nsharp > 0:
+                _exit("Bad format for helmholtz notation: mixing # and b.")
+
+            if l.islower():
+                octave = 3
+
+                if ncommas > 0:
+                    _exit("Bad format for helmholtz notation: mixing "\
+                            "upper-case note and commas.")
+
+                if nticks > 0:
+                    octave += nticks
+                else:
+                    octave += o
             else:
-                octave -= o
+                octave = 2
 
-        base = l.lower()
+                if nticks > 0:
+                    _exit("Bad format for helmholtz notation: mixing " \
+                            "upper-case note and ticks.")
 
-    n = a4diff(base, octave, nflat, nsharp)
-    f = nfreq(n, tuning)
+                if ncommas > 0:
+                    octave -= ncommas
+                else:
+                    octave -= o
 
-    print "Frequency: {0:.3f}".format(f)
+            base = l.lower()
+
+        n = a4diff(base, octave, nflat, nsharp)
+        f = nfreq(n, tuning)
+
+        print "Frequency: {0:.3f}".format(f)
