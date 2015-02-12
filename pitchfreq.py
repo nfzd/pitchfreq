@@ -79,7 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('-a', dest='showall', action='store_true',
                 default=False, help='Show all notations.')
     parser.add_argument('-t', dest='tuning', action='store', default=440,
-                help='Tuning of A4 (default: 440)')
+                type=float, help='Tuning of A4 (default: 440)')
     #parser.add_argument('-c', dest='speedofsound', action='store', default=434, help='Speed of sound (default: 434)')
 
     args = parser.parse_args()
