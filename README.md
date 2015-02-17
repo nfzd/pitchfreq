@@ -3,8 +3,6 @@ pitchfreq
 
 Convert various pitch and frequency notations.
 
-Currently in alpha stage.
-
 Pitch Notations
 ===
 
@@ -24,7 +22,7 @@ pitchfreq.py [-h] [-H] [-m] [-a] [-t TUNING] string
 - -H: use helmholtz / musical notation for input / output
 - -m: input number is a midi pitch, or input note string will be converted to a midi pitch
 - -t TUNING: tuning frequency for A4 if not 440 Hz
-- -a: show all possible information (wavelength etc.), __IN DEVELOPMENT__
+- -a: show all possible information (wavelength etc.)
 
 Examples
 ===
@@ -50,4 +48,11 @@ D#7
 
 $ ./pitchfreq.py $(./pitchfreq.py -m 99)
 Frequency: 2489.016
+
+$ ./pitchfreq.py -a -m 69 -t 441 -c 345
+Frequency: 441.000 Hz
+Wave length: 0.782 m
+MIDI pitch: 69
+Scientific notation: A4
+Helmholtz notation: a'
 ```
