@@ -44,9 +44,10 @@ Frequency: 15.434
 
 $ ./pitchfreq.py -H "c##''"
 Frequency: 587.330
-```
+
 $ ./pitchfreq.py -m 99
 D#7
 
 $ ./pitchfreq.py $(./pitchfreq.py -m 99)
 Frequency: 2489.016
+```
