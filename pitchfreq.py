@@ -49,7 +49,7 @@ def nnote(n, helmholtz):
 
     base = ('a', 'a#', 'b', 'c', 'c#', 'd',
             'd#','e', 'f', 'f#', 'g', 'g#')[int(n)].upper()
-    octave += 4
+    octave = int(octave) + 4
     if n > 2:
         octave += 1
 
@@ -67,6 +67,14 @@ def nnote(n, helmholtz):
         return base + octnot
 
 
+def nmidi(n):
+    return n + 69
+
+
+def midin(midi_pitch):
+    return midi_pitch - 69
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Convert various pitch and ' \
@@ -76,6 +84,8 @@ if __name__ == '__main__':
     parser.add_argument('-H', dest='helmholtz', action='store_true',
                 default=False, help='Input or output uses Helmholtz ' \
                 'notation / musical notation.')
+    parser.add_argument('-m', dest='midi', action='store_true', default=False,
+                help='Input or output is MIDI pitch.')
     parser.add_argument('-a', dest='showall', action='store_true',
                 default=False, help='Show all notations.')
     parser.add_argument('-t', dest='tuning', action='store', default=440,
@@ -86,6 +96,7 @@ if __name__ == '__main__':
 
     s = args.string
     helmholtz = args.helmholtz
+    midi = args.midi
     showall = args.showall
     tuning = args.tuning
     #c = args.speedofsound
@@ -109,40 +120,47 @@ if __name__ == '__main__':
 
     if freq:
 
-        n = 12 * math.log((f / tuning), 2)
+        if not midi:
+            n = 12 * math.log((f / tuning), 2)
 
-        nu = math.ceil(n)
-        nl = math.floor(n)
+            nu = math.ceil(n)
+            nl = math.floor(n)
 
-        fu = nfreq(nu, tuning)
-        fl = nfreq(nl, tuning)
+            fu = nfreq(nu, tuning)
+            fl = nfreq(nl, tuning)
 
 
-        print "Nearby notes:"
+            print "Nearby notes:"
 
-        thres = .2
+            thres = .2
 
-        if nu == round(n):
-            if fu != fl:
-                delta_ratio = (fu - f) / (fu - fl)
-            else:
-                delta_ratio = 0
+            if nu == round(n):
+                if fu != fl:
+                    delta_ratio = (fu - f) / (fu - fl)
+                else:
+                    delta_ratio = 0
 
-            print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
-
-            if delta_ratio > thres or showall:
-                print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
-        else:
-            if f != fl:
-                delta_ratio = (f - fl) / (fu - fl)
-            else:
-                delta_ratio = 0
-
-            print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
-
-            if delta_ratio > thres or showall:
                 print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
-        
+
+                if delta_ratio > thres or showall:
+                    print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
+            else:
+                if f != fl:
+                    delta_ratio = (f - fl) / (fu - fl)
+                else:
+                    delta_ratio = 0
+
+                print nnote(nl, helmholtz) + " (frequency: {0:.3f})".format(fl)
+
+                if delta_ratio > thres or showall:
+                    print nnote(nu, helmholtz) + " (frequency: {0:.3f})".format(fu)
+
+        else:
+            if not f.is_integer():
+                _exit("MIDI pitch must be an integer.")
+
+            n = midin(int(f))
+            print nnote(n, helmholtz)
 
 
     else:
@@ -294,6 +312,12 @@ if __name__ == '__main__':
             base = l.lower()
 
         n = a4diff(base, octave, nflat, nsharp)
-        f = nfreq(n, tuning)
+        
+        if not midi:
+            f = nfreq(n, tuning)
 
-        print "Frequency: {0:.3f}".format(f)
+            print "Frequency: {0:.3f}".format(f)
+        else:
+            m = nmidi(n)
+
+            print "MIDI pitch: {0:d}".format(m)
