@@ -77,6 +77,7 @@ def midin(midi_pitch):
 
 def _printall(n, tuning, c):
     _printfreq(n, tuning)
+    _printlambda(n, tuning, c)
     _printmidi(n)
     _printnote(n, False)
     _printnote(n, True)
@@ -85,7 +86,14 @@ def _printall(n, tuning, c):
 def _printfreq(n, tuning):
     f = nfreq(n, tuning)
 
-    print "Frequency: {0:.3f}".format(f)
+    print "Frequency: {0:.3f} Hz".format(f)
+
+
+def _printlambda(n, tuning, c):
+    f = nfreq(n, tuning)
+    lamb = c / f
+
+    print "Wave length: {0:.3f} m".format(lamb)
 
 
 def _printmidi(n):
@@ -106,7 +114,7 @@ def _printnote(n, helmholtz):
 def _printnotefreq(n, helmholtz, tuning):
     s = nnote(n, helmholtz)
     f = nfreq(n, tuning)
-    print s + " (frequency: {0:.3f})".format(f)
+    print s + " (frequency: {0:.3f} Hz)".format(f)
 
 
 
@@ -124,8 +132,9 @@ if __name__ == '__main__':
     parser.add_argument('-a', dest='showall', action='store_true',
                 default=False, help='Show all notations.')
     parser.add_argument('-t', dest='tuning', action='store', default=440,
-                type=float, help='Tuning of A4 (default: 440)')
-    #parser.add_argument('-c', dest='speedofsound', action='store', default=434, help='Speed of sound (default: 434)')
+                type=float, help='Tuning of A4 in Hz (default: 440)')
+    parser.add_argument('-c', dest='speed', action='store',
+                default=343, help='Speed of sound in m/s (default: 343)')
 
     args = parser.parse_args()
 
@@ -134,9 +143,7 @@ if __name__ == '__main__':
     midi = args.midi
     showall = args.showall
     tuning = args.tuning
-    #c = args.speedofsound
-    # TODO
-    c = 434
+    c = args.speed
 
     freq = True
 
