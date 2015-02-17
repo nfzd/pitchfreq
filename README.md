@@ -22,6 +22,7 @@ pitchfreq.py [-h] [-H] [-m] [-a] [-t TUNING] string
 - string: input. A number will be regarded as frequency and converted to a note. An alphanumerical string will be regarded as pitch notation and converted to a frequency.
 - -h: display help message
 - -H: use helmholtz / musical notation for input / output
+- -m: input number is a midi pitch, or input note string will be converted to a midi pitch
 - -t TUNING: tuning frequency for A4 if not 440 Hz
 - -a: show all possible information (wavelength etc.), __IN DEVELOPMENT__
 
