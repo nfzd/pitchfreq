@@ -15,12 +15,12 @@ Usage
 ===
 
 ```
-pitchfreq.py [-h] [-m] [-a] [-t TUNING] string
+pitchfreq.py [-h] [-H] [-a] [-t TUNING] string
 ```
 
 - string: input. A number will be regarded as frequency and converted to a note. An alphanumerical string will be regarded as pitch notation and converted to a frequency.
 - -h: display help message
-- -m: use helmholtz / musical notation for input / output
+- -H: use helmholtz / musical notation for input / output
 - -t TUNING: tuning frequency for A4 if not 440 Hz
 - -a: show all possible information (wavelength etc.), __IN DEVELOPMENT__
 
@@ -32,7 +32,7 @@ Nearby notes:
 A4 (frequency: 440.000)
 G#4 (frequency: 415.305)
 
-$ ./pitchfreq.py -m 510
+$ ./pitchfreq.py -H 510
 Nearby notes:
 c'' (frequency: 523.251)
 b' (frequency: 493.883)
@@ -40,6 +40,6 @@ b' (frequency: 493.883)
 $ ./pitchfreq.py Cb0
 Frequency: 15.434
 
-$ ./pitchfreq.py -m "c##''"
+$ ./pitchfreq.py -H "c##''"
 Frequency: 587.330
 ```

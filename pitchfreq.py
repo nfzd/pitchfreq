@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 'frequency notations using equal temperament.')
     parser.add_argument(dest='string', type=str,help='Input, by default ' \
                 'either frequency or scientific pitch notation is assumed.')
-    parser.add_argument('-m', dest='helmholtz', action='store_true',
+    parser.add_argument('-H', dest='helmholtz', action='store_true',
                 default=False, help='Input or output uses Helmholtz ' \
                 'notation / musical notation.')
     parser.add_argument('-a', dest='showall', action='store_true',
