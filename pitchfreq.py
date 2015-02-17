@@ -10,6 +10,22 @@ import sys
 def _exit(error_msg):
     sys.exit(os.path.basename(__file__) + ": Error: " + error_msg)
 
+
+def _getfloat(string):
+    error = False
+
+    try:
+        value = float(string)
+
+        if math.isnan(value) or math.isinf(value) or value == 0.0:
+            error = True
+
+    except ValueError:
+        error = True
+        value = float('nan')
+
+    return value, error
+
 def a4diff(base, octave, nflat, nsharp):
     """Compute the number of half-tones difference to A4."""
     n = {
@@ -133,7 +149,7 @@ if __name__ == '__main__':
                 default=False, help='Show all notations.')
     parser.add_argument('-t', dest='tuning', action='store', default=440,
                 type=float, help='Tuning of A4 in Hz (default: 440)')
-    parser.add_argument('-c', dest='speed', action='store',
+    parser.add_argument('-c', dest='speed', action='store', type=float,
                 default=343, help='Speed of sound in m/s (default: 343)')
 
     args = parser.parse_args()
@@ -143,19 +159,13 @@ if __name__ == '__main__':
     midi = args.midi
     showall = args.showall
     tuning = args.tuning
-    c = args.speed
 
-    freq = True
+    c, error = _getfloat(args.speed)
+    if error:
+        _exit("Bad value for SPEED.")
 
-    try:
-        f = float(s)
-
-        if math.isnan(f) or math.isinf(f) or f == 0.0:
-            freq = False
-
-    except ValueError:
-        freq = False
-
+    f, error = _getfloat(s)
+    freq = ~error
 
     if freq:
 
