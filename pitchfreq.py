@@ -165,7 +165,7 @@ if __name__ == '__main__':
         _exit("Bad value for SPEED.")
 
     f, error = _getfloat(s)
-    freq = ~error
+    freq = not error
 
     if freq:
 
