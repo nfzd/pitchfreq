@@ -1,0 +1,2 @@
+include CHANGES LICENSE README.md REQUIREMENTS VERSION
+recursive-include docs *.txt
